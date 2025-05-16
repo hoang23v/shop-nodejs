@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thêm sản phẩm</title>
+</head>
+<body>
+  <h1>Thêm sản phẩm mới</h1>
+  <form action="/admin/add-product" method="POST" enctype="multipart/form-data">
+    <label>Tên:</label><br>
+    <input type="text" name="name" required><br><br>
+
+    <label>Mô tả:</label><br>
+    <textarea name="description"></textarea><br><br>
+
+    <label>Giá:</label><br>
+    <input type="number" name="price" required><br><br>
+
+    <label>Số lượng:</label><br>
+    <input type="number" name="stock" required><br><br>
+
+    <label>Ảnh:</label><br>
+    <input type="file" name="image"><br><br>
+
+    <button type="submit">Thêm sản phẩm</button>
+  </form>
+</body>
+</html>
