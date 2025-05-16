@@ -2,21 +2,29 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../middlewares/upload');
 const Product = require('../models/Product');
+const Image = require('../models/Image');  // Bạn cần import model Image
 
 router.get('/add-product', (req, res) => {
   res.render('admin/add-product'); 
 });
 
-router.post('/add-product', upload.single('image'), async (req, res) => {
+router.post('/add-product', upload.array('images', 5), async (req, res) => {
   try {
     const { name, description, price, stock } = req.body;
-    const image = req.file ? req.file.filename : null;
 
-    if (!name || !price || stock == null) {
-      return res.status(400).send('Thiếu thông tin');
+    // Tạo product
+    const product = await Product.create({ name, description, price, stock });
+
+    // Lưu images nếu có file
+    if (req.files && req.files.length > 0) {
+      const images = req.files.map(file => ({
+        filename: file.filename,
+        productId: product.id
+      }));
+
+      await Image.bulkCreate(images);
     }
 
-    await Product.create({ name, description, price, stock, image });
     res.redirect('/');
   } catch (err) {
     console.error(err);

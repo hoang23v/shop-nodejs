@@ -27,28 +27,22 @@
 
   <main class="container py-5">
     <div class="row g-4 align-items-center">
-      
-      <div class="col-md-5 text-center">
-        <% if (product.image) { %>
-          <img src="/uploads/<%= product.image %>" alt="<%= product.name %>" class="img-fluid rounded shadow" style="max-height: 350px; object-fit: contain;" />
-        <% } else { %>
-          <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="height: 350px;">
-            <span class="fs-4">No Image</span>
-          </div>
-        <% } %>
-      </div>
+<h1><%= product.name %></h1>
+<p><strong>Giá:</strong> <%= product.price %> VNĐ</p>
+<p><strong>Mô tả:</strong> <%= product.description %></p>
+<p><strong>Tồn kho:</strong> <%= product.stock %></p>
 
-      <div class="col-md-7">
-        <h1 class="display-5 fw-bold text-primary mb-3"><%= product.name %></h1>
-        <p class="fs-4 fw-semibold text-success mb-3">Giá: <%= product.price %> VNĐ</p>
-        
-        <p><strong>Mô tả:</strong></p>
-        <p class="mb-4 text-gray-700"><%= product.description %></p>
-        
-        <p><strong>Tồn kho:</strong> <span class="badge bg-info text-dark fs-6"><%= product.stock %></span></p>
+<div>
+  <% if (product.images && product.images.length > 0) { %>
+    <% product.images.forEach(image => { %>
+      <img src="/uploads/<%= image.filename %>" alt="<%= product.name %>" width="200" style="margin-right: 10px;" />
+    <% }); %>
+  <% } else { %>
+    <p>Chưa có ảnh cho sản phẩm này.</p>
+  <% } %>
+</div>
 
-        <a href="/" class="back-link mt-4 d-inline-block">&larr; Quay lại danh sách</a>
-      </div>
+
 
     </div>
   </main>

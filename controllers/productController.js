@@ -1,33 +1,51 @@
 const Product = require('../models/Product');
 const path = require('path');
 const fs = require('fs');
+const Image = require('../models/Image');
 
 const createProduct = async (req, res) => {
   try {
     const { name, description, price, stock } = req.body;
-    const image = req.file ? req.file.filename : null;
 
     if (!name || !price || stock == null) {
       return res.status(400).json({ message: 'Thiếu thông tin' });
     }
 
-    const product = await Product.create({ name, description, price, stock, image });
-    res.status(201).json(product);
+    const product = await Product.create({ name, description, price, stock });
+
+    if (req.files && req.files.length > 0) {
+      const imagesData = req.files.map(file => ({
+        filename: file.filename,
+        productId: product.id,
+      }));
+      await Image.bulkCreate(imagesData);
+    }
+
+    const productWithImages = await Product.findByPk(product.id, {
+      include: [{ model: Image, as: 'images' }]
+    });
+
+    res.status(201).json(productWithImages);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Lỗi server' });
   }
 };
 
+
 const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.findAll();
-    res.json(products);
+    const products = await Product.findAll({
+      include: [{ model: Image, as: 'images' }] // include ảnh
+    });
+    res.render('productList', { products });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Lỗi server' });
+    res.status(500).send('Lỗi server');
   }
 };
+
+
 
 const deleteProduct = async (req, res) => {
   try {

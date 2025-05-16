@@ -36,27 +36,19 @@
 
   <main class="container">
     <h1 class="mb-4 text-center text-3xl font-semibold text-gray-700">Danh sách sản phẩm</h1>
+<% products.forEach(product => { %>
+  <li>
+    <a href="/product/<%= product.id %>">
+      <% if (product.images && product.images.length > 0) { %>
+        <img src="/uploads/<%= product.images[0].filename %>" alt="<%= product.name %>" width="80" style="margin-right: 5px;" />
+      <% } %>
+      <%= product.name %> - <%= product.price %> VNĐ
+    </a>
+  </li>
+<% }) %>
 
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-      <% products.forEach(product => { %>
-        <div class="col">
-          <div class="card h-100 shadow-sm hover:shadow-lg transition-shadow duration-300">
-            <% if (product.image) { %>
-              <img src="/uploads/<%= product.image %>" class="card-img-top object-cover" alt="<%= product.name %>" style="height: 200px;"/>
-            <% } else { %>
-              <div class="bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 200px;">
-                No Image
-              </div>
-            <% } %>
-            <div class="card-body">
-              <a href="/product/<%= product.id %>" class="product-link h5 card-title d-block mb-2">
-                <%= product.name %>
-              </a>
-              <p class="card-text text-primary fw-bold"><%= product.price %> VNĐ</p>
-            </div>
-          </div>
-        </div>
-      <% }) %>
+
+
     </div>
   </main>
 
