@@ -18,11 +18,11 @@
       font-family: 'Poppins', sans-serif;
       display: flex;
       flex-direction: column;
-      min-height: 100vh; /* Ensure body takes full viewport height */
+      min-height: 100vh;
       background-color: #f8f9fa;
     }
     .main-content {
-      flex: 1; /* Allow main content to grow and push footer down */
+      flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -49,7 +49,7 @@
     }
     footer {
       width: 100%;
-      background-color: #212529; /* Match bg-dark */
+      background-color: #212529;
     }
     .footer-link {
       color: #ffffff;
@@ -70,6 +70,12 @@
       transform: scale(1.2);
       color: #0d6efd;
     }
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1050;
+    }
   </style>
 </head>
 <body>
@@ -89,6 +95,7 @@
                 id="username"
                 placeholder="Nhập tên tài khoản"
                 class="form-control rounded-lg"
+                value="<%= username || '' %>"
                 required
               />
             </div>
@@ -100,6 +107,7 @@
                 id="email"
                 placeholder="Nhập email"
                 class="form-control rounded-lg"
+                value="<%= email || '' %>"
                 required
               />
             </div>
@@ -127,6 +135,30 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container">
+    <% if (error) { %>
+      <div class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+        <div class="d-flex">
+          <div class="toast-body">
+            <%= error %>
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    <% } %>
+    <% if (success) { %>
+      <div class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
+        <div class="d-flex">
+          <div class="toast-body">
+            <%= success %>
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    <% } %>
   </div>
 
   <!-- Footer -->
@@ -208,6 +240,21 @@
         return;
       }
     });
+
+    // Show toasts if they exist
+    document.addEventListener('DOMContentLoaded', function () {
+      const toasts = document.querySelectorAll('.toast');
+      toasts.forEach(toast => {
+        new bootstrap.Toast(toast).show();
+      });
+    });
+
+    // Redirect to /login after 3 seconds if success
+    <% if (success) { %>
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 3000);
+    <% } %>
   </script>
 </body>
 </html>

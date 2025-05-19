@@ -1,47 +1,36 @@
-import express from 'express';
+import { Router } from 'express';
+import { Op } from 'sequelize';
 import Product from '../models/Product.js';
 import Image from '../models/Image.js';
-import Account from '../models/Account.js';
 
-const router = express.Router();
+const router = Router();
 
 // Route danh sách sản phẩm
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.findAll({
-      include: [{ model: Image, as: 'images' }],
-    });
+    const { search } = req.query;
+    let products;
 
-    let user = null;
-    if (req.session.userEmail) {
-      const account = await Account.findOne({
-        where: { email: req.session.userEmail },
-        attributes: { exclude: ['password'] }, // Exclude password
+    if (search) {
+      products = await Product.findAll({
+        where: {
+          name: {
+            [Op.iLike]: `%${search}%`, // Tìm kiếm không phân biệt hoa thường
+          },
+        },
+        include: [{ model: Image, as: 'images' }],
       });
-      if (account) {
-        // Parse purchasedServices if it's a string
-        let purchasedServices = account.purchasedServices;
-        if (typeof purchasedServices === 'string') {
-          try {
-            purchasedServices = JSON.parse(purchasedServices);
-          } catch (e) {
-            console.error('Error parsing purchasedServices:', e);
-            purchasedServices = [];
-          }
-        }
-        if (!Array.isArray(purchasedServices)) {
-          purchasedServices = [];
-        }
-        user = {
-          username: account.username,
-          email: account.email,
-          balance: account.balance,
-          purchasedServices,
-        };
-      }
+    } else {
+      products = await Product.findAll({
+        include: [{ model: Image, as: 'images' }],
+      });
     }
 
-    res.render('products', { products, user });
+    // res.locals.user đã được set bởi middleware setUser
+    res.render('products', {
+      products,
+      search: search || '',
+    });
   } catch (error) {
     console.error('Lỗi khi lấy danh sách sản phẩm:', error.message, error.stack);
     res.status(500).render('error', { message: 'Lỗi server khi lấy sản phẩm.' });
@@ -59,36 +48,8 @@ router.get('/product/:id', async (req, res) => {
       return res.status(404).render('error', { message: 'Không tìm thấy sản phẩm.' });
     }
 
-    let user = null;
-    if (req.session.userEmail) {
-      const account = await Account.findOne({
-        where: { email: req.session.userEmail },
-        attributes: { exclude: ['password'] }, // Exclude password
-      });
-      if (account) {
-        // Parse purchasedServices if it's a string
-        let purchasedServices = account.purchasedServices;
-        if (typeof purchasedServices === 'string') {
-          try {
-            purchasedServices = JSON.parse(purchasedServices);
-          } catch (e) {
-            console.error('Error parsing purchasedServices:', e);
-            purchasedServices = [];
-          }
-        }
-        if (!Array.isArray(purchasedServices)) {
-          purchasedServices = [];
-        }
-        user = {
-          username: account.username,
-          email: account.email,
-          balance: account.balance,
-          purchasedServices,
-        };
-      }
-    }
-
-    res.render('product-detail', { product, user });
+    // res.locals.user đã được set bởi middleware setUser
+    res.render('product-detail', { product });
   } catch (error) {
     console.error('Lỗi khi lấy sản phẩm:', error.message, error.stack);
     res.status(500).render('error', { message: 'Lỗi server khi lấy sản phẩm.' });

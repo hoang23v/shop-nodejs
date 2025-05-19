@@ -25,10 +25,15 @@ const Account = sequelize.define('Account', {
     defaultValue: 0,
   },
   purchasedServices: {
-  type: DataTypes.JSON,
-  allowNull: true,
-  defaultValue: [],
-}
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: [],
+  },
+  isAdmin: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false, 
+  },
 }, {
   tableName: 'Accounts',
   timestamps: true,

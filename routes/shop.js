@@ -1,11 +1,12 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { Op } from 'sequelize'; // Thêm Op để hỗ trợ tìm kiếm
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import DownloadFile from '../models/DownloadFile.js';
-import Account from '../models/Account.js';
-import { sendProductEmail } from '../services/sendMail.js'; 
+import { sendProductEmail } from '../services/sendMail.js';
+import { requireLogin } from '../middlewares/auth.js'; // Thêm middleware
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -14,40 +15,35 @@ const __dirname = path.dirname(__filename);
 // Route danh sách sản phẩm (home page)
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.findAll({
-      include: [{ model: DownloadFile, as: 'downloadFile' }, { model: Image, as: 'images' }],
-    });
+    const { search } = req.query;
+    let products;
 
-    let user = null;
-    if (req.session.userEmail) {
-      const account = await Account.findOne({
-        where: { email: req.session.userEmail },
-        attributes: { exclude: ['password'] }, // Exclude password
+    if (search) {
+      products = await Product.findAll({
+        where: {
+          name: {
+            [Op.iLike]: `%${search}%`, // Tìm kiếm không phân biệt hoa thường
+          },
+        },
+        include: [
+          { model: DownloadFile, as: 'downloadFile' },
+          { model: Image, as: 'images' },
+        ],
       });
-      if (account) {
-        // Parse purchasedServices if it's a string
-        let purchasedServices = account.purchasedServices;
-        if (typeof purchasedServices === 'string') {
-          try {
-            purchasedServices = JSON.parse(purchasedServices);
-          } catch (e) {
-            console.error('Error parsing purchasedServices:', e);
-            purchasedServices = [];
-          }
-        }
-        if (!Array.isArray(purchasedServices)) {
-          purchasedServices = [];
-        }
-        user = {
-          username: account.username,
-          email: account.email,
-          balance: account.balance,
-          purchasedServices,
-        };
-      }
+    } else {
+      products = await Product.findAll({
+        include: [
+          { model: DownloadFile, as: 'downloadFile' },
+          { model: Image, as: 'images' },
+        ],
+      });
     }
 
-    res.render('index', { products, user });
+    // res.locals.user đã được set bởi middleware setUser
+    res.render('index', {
+      products,
+      search: search || '',
+    });
   } catch (error) {
     console.error('Lỗi trong /:', error.message, error.stack);
     res.status(500).render('error', { message: 'Lỗi server khi lấy danh sách sản phẩm.' });
@@ -55,20 +51,9 @@ router.get('/', async (req, res) => {
 });
 
 // Route mua hàng
-router.post('/buy/:productId', async (req, res) => {
-  if (!req.session.userEmail) {
-    return res.redirect('/login');
-  }
-
+router.post('/buy/:productId', requireLogin, async (req, res) => {
   try {
-    const user = await Account.findOne({ where: { email: req.session.userEmail } });
-    if (!user) {
-      return res.redirect('/login');
-    }
-
-    const userId = user.id;
-    const userEmail = user.email;
-
+    const user = res.locals.user; // Lấy từ res.locals.user
     const product = await Product.findByPk(req.params.productId, {
       include: [{ model: DownloadFile, as: 'downloadFile' }],
     });
@@ -81,11 +66,11 @@ router.post('/buy/:productId', async (req, res) => {
       return res.status(400).render('error', { message: 'Sản phẩm đã hết hàng.' });
     }
 
-    await Order.create({ userId, productId: product.id });
+    await Order.create({ userId: user.id, productId: product.id });
 
     await product.decrement('stock');
 
-    await sendProductEmail(userEmail, product, product.downloadFile);
+    await sendProductEmail(user.email, product, product.downloadFile);
 
     res.redirect('/my-downloads?purchased=true');
   } catch (error) {
@@ -95,26 +80,19 @@ router.post('/buy/:productId', async (req, res) => {
 });
 
 // Route tải file theo productId
-router.get('/download/:productId', async (req, res) => {
-  if (!req.session.userEmail) {
-    return res.redirect('/login');
-  }
-
+router.get('/download/:productId', requireLogin, async (req, res) => {
   try {
-    const user = await Account.findOne({ where: { email: req.session.userEmail } });
-    if (!user) {
-      return res.redirect('/login');
-    }
-
-    const userId = user.id;
+    const user = res.locals.user;
     const productId = req.params.productId;
 
     const order = await Order.findOne({
-      where: { userId, productId },
-      include: [{
-        model: Product,
-        include: [{ model: DownloadFile, as: 'downloadFile' }],
-      }],
+      where: { userId: user.id, productId },
+      include: [
+        {
+          model: Product,
+          include: [{ model: DownloadFile, as: 'downloadFile' }],
+        },
+      ],
     });
 
     if (!order) {
@@ -135,33 +113,9 @@ router.get('/download/:productId', async (req, res) => {
 });
 
 // Route danh sách file đã mua
-router.get('/my-downloads', async (req, res) => {
-  if (!req.session.userEmail) {
-    return res.redirect('/login');
-  }
-
+router.get('/my-downloads', requireLogin, async (req, res) => {
   try {
-    const user = await Account.findOne({
-      where: { email: req.session.userEmail },
-      attributes: { exclude: ['password'] },
-    });
-    if (!user) {
-      return res.redirect('/login');
-    }
-
-    let purchasedServices = user.purchasedServices;
-    if (typeof purchasedServices === 'string') {
-      try {
-        purchasedServices = JSON.parse(purchasedServices);
-      } catch (e) {
-        console.error('Error parsing purchasedServices:', e);
-        purchasedServices = [];
-      }
-    }
-    if (!Array.isArray(purchasedServices)) {
-      purchasedServices = [];
-    }
-
+    const user = res.locals.user;
     const orders = await Order.findAll({
       where: { userId: user.id },
       include: [
@@ -172,15 +126,7 @@ router.get('/my-downloads', async (req, res) => {
       ],
     });
 
-    res.render('my-downloads', {
-      orders,
-      user: {
-        username: user.username,
-        email: user.email,
-        balance: user.balance,
-        purchasedServices,
-      },
-    });
+    res.render('my-downloads', { orders, user });
   } catch (error) {
     console.error('Lỗi trong /my-downloads:', error.message, error.stack);
     res.status(500).render('error', { message: 'Lỗi server khi lấy danh sách tải về.' });

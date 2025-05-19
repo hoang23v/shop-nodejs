@@ -16,6 +16,7 @@ import adminRoutes from './routes/adminRoutes.js';
 import buyRoutes from './routes/shop.js';
 import authRoutes from './routes/authRoutes.js';
 import session from 'express-session';
+import { setUser } from './middlewares/auth.js';
 
 const app = express();
 
@@ -44,7 +45,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(setUser);
 // Đăng ký các route
 app.use('/api/products', productRoutes);
 app.use('/admin', adminRoutes);

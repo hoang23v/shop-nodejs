@@ -3,10 +3,10 @@ import upload from '../middlewares/upload.js';
 import Product from '../models/Product.js';
 import Image from '../models/Image.js';
 import DownloadFile from '../models/DownloadFile.js';
-
+import { restrictToAdmin } from '../middlewares/auth.js';
 const router = express.Router();
 
-router.get('/add-product', (req, res) => {
+router.get('/add-product',restrictToAdmin, (req, res) => {
   res.render('admin/add-product');
 });
 
