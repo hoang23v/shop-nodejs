@@ -1,8 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const Product = require('../models/Product');
-const Image = require('../models/Image')
+import express from 'express';
+import Product from '../models/Product.js';
+import Image from '../models/Image.js';
 
+const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const products = await Product.findAll({
@@ -30,4 +30,4 @@ router.get('/product/:id', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

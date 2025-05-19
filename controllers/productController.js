@@ -1,7 +1,7 @@
-const Product = require('../models/Product');
-const path = require('path');
-const fs = require('fs');
-const Image = require('../models/Image');
+import Product from '../models/Product.js';
+import path from 'path';
+import fs from 'fs';
+import Image from '../models/Image.js';
 
 const createProduct = async (req, res) => {
   try {
@@ -36,7 +36,7 @@ const createProduct = async (req, res) => {
 const getAllProducts = async (req, res) => {
   try {
     const products = await Product.findAll({
-      include: [{ model: Image, as: 'images' }] // include ảnh
+      include: [{ model: Image, as: 'images' }] 
     });
     res.render('productList', { products });
   } catch (err) {
@@ -46,23 +46,31 @@ const getAllProducts = async (req, res) => {
 };
 
 
-
 const deleteProduct = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const product = await Product.findByPk(id);
+    const product = await Product.findByPk(id, {
+      include: [{ model: Image, as: 'images' }]
+    });
     if (!product) {
       return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
     }
 
-    if (product.image) {
-      const imagePath = path.join(__dirname, '../uploads', product.image);
-      fs.unlink(imagePath, (err) => {
-        if (err) console.warn('Xoá ảnh lỗi hoặc ảnh không tồn tại:', err.message);
+    // Xoá file ảnh thật
+    if (product.images && product.images.length > 0) {
+      product.images.forEach(image => {
+        const imagePath = path.join(path.dirname(new URL(import.meta.url).pathname), '../uploads', image.filename);
+        fs.unlink(imagePath, err => {
+          if (err) console.warn('Xoá ảnh lỗi hoặc ảnh không tồn tại:', err.message);
+        });
       });
     }
 
+    // Xoá bản ghi ảnh trong DB
+    await Image.destroy({ where: { productId: id } });
+
+    // Xoá sản phẩm
     await product.destroy();
 
     res.json({ message: 'Đã xoá sản phẩm thành công' });
@@ -75,16 +83,18 @@ const deleteProduct = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
      const id = req.params.id;
-     const product = await Product.findByPk(id);
+     const product = await Product.findByPk(id, {
+       include: [{ model: Image, as: 'images' }]
+     });
 
      if (!product) {
        return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
      }
-      res.json(product); 
+     res.json(product);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Lỗi server khi lấy thông tin sản phẩm' });
   }
 }
 
-module.exports = { createProduct, getAllProducts, deleteProduct, getProductById };
+export { createProduct, getAllProducts, deleteProduct, getProductById };

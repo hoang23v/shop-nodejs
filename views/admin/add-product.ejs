@@ -2,27 +2,287 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Thêm sản phẩm</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quản lý sản phẩm - Ans Studio</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f3f4f6;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 3rem;
+      color: #0d6efd;
+      letter-spacing: 0.05em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+    .logo:hover {
+      transform: scale(1.05);
+    }
+    .form-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    .btn-primary {
+      background-color: #0d6efd;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: #0b5ed7;
+    }
+    .product-list-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 <body>
-  <h1>Thêm sản phẩm mới</h1>
-  <form action="/admin/add-product" method="POST" enctype="multipart/form-data">
-    <label>Tên:</label><br>
-    <input type="text" name="name" required><br><br>
 
-    <label>Mô tả:</label><br>
-    <textarea name="description"></textarea><br><br>
+  <!-- Header -->
+  <header class="bg-white shadow-sm py-4 mb-4">
+    <div class="container text-center">
+      <a href="/" class="logo">Ans Studio</a>
+    </div>
+  </header>
 
-    <label>Giá:</label><br>
-    <input type="number" name="price" required><br><br>
+  <!-- Main Container -->
+  <main class="container">
 
-    <label>Số lượng:</label><br>
-    <input type="number" name="stock" required><br><br>
+    <!-- Form thêm sản phẩm -->
+    <section class="form-container">
+      <h1 class="mb-4 text-center text-2xl font-semibold text-gray-800">Thêm sản phẩm mới</h1>
+      <form id="addProductForm" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="name" class="form-label fw-semibold">Tên sản phẩm</label>
+          <input type="text" class="form-control" id="name" name="name" required placeholder="Nhập tên sản phẩm" />
+        </div>
 
-    <label>Ảnh:</label><br>
-    <input type="file" name="images" multiple><br><br>
+        <div class="mb-3">
+          <label for="description" class="form-label fw-semibold">Mô tả</label>
+          <textarea class="form-control" id="description" name="description" rows="4" placeholder="Nhập mô tả sản phẩm"></textarea>
+        </div>
 
-    <button type="submit">Thêm sản phẩm</button>
-  </form>
+        <div class="mb-3">
+          <label for="price" class="form-label fw-semibold">Giá (VNĐ)</label>
+          <input type="number" class="form-control" id="price" name="price" required min="0" placeholder="Nhập giá sản phẩm" />
+        </div>
+
+        <div class="mb-3">
+          <label for="stock" class="form-label fw-semibold">Số lượng</label>
+          <input type="number" class="form-control" id="stock" name="stock" required min="0" placeholder="Nhập số lượng" />
+        </div>
+
+        <div class="mb-3">
+          <label for="images" class="form-label fw-semibold">Ảnh sản phẩm</label>
+          <input type="file" class="form-control" id="images" name="images" multiple accept="image/*" />
+          <small class="form-text text-muted">Chọn nhiều ảnh nếu cần (JPG, PNG).</small>
+        </div>
+
+        <div class="mb-3">
+          <label for="googleDriveLink" class="form-label fw-semibold">Link Google Drive (nếu có)</label>
+          <input
+            type="url"
+            class="form-control"
+            id="googleDriveLink"
+            name="googleDriveLink"
+            placeholder="Nhập link Google Drive để khách tải file (nếu có)"
+          />
+          <small class="form-text text-muted">Bạn có thể nhập link Google Drive thay vì upload file.</small>
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary px-5">Thêm sản phẩm</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Danh sách sản phẩm -->
+    <section class="product-list-container">
+      <h2 class="mb-4 text-center text-2xl font-semibold text-gray-800">Danh sách sản phẩm</h2>
+
+      <!-- Thanh tìm kiếm -->
+      <input
+        type="text"
+        id="searchInput"
+        class="form-control mb-3"
+        placeholder="Tìm kiếm sản phẩm theo tên..."
+        oninput="filterProducts()"
+      />
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tên sản phẩm</th>
+            <th>Giá (VNĐ)</th>
+            <th>Số lượng</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody id="product-list">
+          <!-- Sản phẩm sẽ được load ở đây -->
+        </tbody>
+      </table>
+
+      <div class="text-center">
+        <button id="loadMoreBtn" class="btn btn-outline-primary mt-3">Xem thêm</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white text-center py-3 mt-5">
+    <p class="mb-0">© 2025 Ans Studio. All rights reserved.</p>
+  </footer>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Biến toàn cục chứa toàn bộ sản phẩm từ API
+    let allProducts = [];
+    // Biến lưu số lượng sản phẩm đã hiển thị
+    let productsDisplayed = 0;
+    // Số sản phẩm mỗi lần hiển thị
+    const pageSize = 10;
+
+    // Hàm load toàn bộ sản phẩm từ API
+    async function loadProducts() {
+      try {
+        const res = await fetch('/admin/products');
+        if (!res.ok) throw new Error('Lỗi tải danh sách sản phẩm');
+        allProducts = await res.json();
+        productsDisplayed = 0;
+        renderProductList();
+      } catch (err) {
+        console.error(err);
+        alert('Lỗi tải danh sách sản phẩm');
+      }
+    }
+
+    // Hàm hiển thị danh sách sản phẩm theo phân trang
+    function renderProductList() {
+      const tbody = document.getElementById('product-list');
+      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      // Lọc sản phẩm theo từ khóa nếu có
+      const filteredProducts = keyword
+        ? allProducts.filter(p => p.name.toLowerCase().includes(keyword))
+        : allProducts;
+
+      // Hiển thị sản phẩm từ productsDisplayed đến productsDisplayed + pageSize
+      const productsToShow = filteredProducts.slice(0, productsDisplayed + pageSize);
+      productsDisplayed = productsToShow.length;
+
+      // Xóa bảng trước khi render lại
+      tbody.innerHTML = '';
+
+      productsToShow.forEach(product => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${product.id}</td>
+          <td>${product.name}</td>
+          <td>${product.price.toLocaleString()}</td>
+          <td>${product.stock}</td>
+          <td>
+            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.id})">Xóa</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Ẩn nút Xem thêm nếu đã hiển thị hết sản phẩm
+      const loadMoreBtn = document.getElementById('loadMoreBtn');
+      if (productsDisplayed >= filteredProducts.length) {
+        loadMoreBtn.style.display = 'none';
+      } else {
+        loadMoreBtn.style.display = 'inline-block';
+      }
+    }
+
+    // Hàm lọc sản phẩm khi nhập từ khóa
+    function filterProducts() {
+      productsDisplayed = 0; // reset số lượng hiển thị khi tìm kiếm
+      renderProductList();
+    }
+
+    // Xử lý khi click nút Xem thêm
+    document.getElementById('loadMoreBtn').addEventListener('click', () => {
+      renderProductList();
+    });
+
+    // Hàm xóa sản phẩm
+    async function deleteProduct(id) {
+      if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
+
+      try {
+        const res = await fetch(`/admin/delete-product/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        alert(data.message);
+        if (data.success) {
+          // Xóa sản phẩm khỏi allProducts
+          allProducts = allProducts.filter(p => p.id !== id);
+          productsDisplayed--;
+          renderProductList();
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Lỗi khi xóa sản phẩm');
+      }
+    }
+
+    // Xử lý form thêm sản phẩm
+    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      try {
+        const res = await fetch('/admin/add-product', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          alert('Thêm sản phẩm thành công!');
+          form.reset();
+          // Tải lại danh sách sản phẩm mới nhất
+          await loadProducts();
+        } else {
+          alert('Có lỗi khi thêm sản phẩm: ' + (data.message || ''));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Lỗi khi thêm sản phẩm');
+      }
+    });
+
+    // Load sản phẩm khi trang load xong
+    window.onload = function () {
+      loadProducts();
+    };
+  </script>
 </body>
 </html>

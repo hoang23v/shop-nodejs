@@ -1,8 +1,8 @@
-const { Sequelize } = require('sequelize');
+import { Sequelize } from 'sequelize';
 
 const sequelize = new Sequelize('shopdb', 'root', '123456', {
   host: 'localhost',
   dialect: 'mariadb',
 });
 
-module.exports = sequelize;
+export default sequelize;
