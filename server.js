@@ -15,17 +15,30 @@ import viewRoutes from './routes/viewRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import buyRoutes from './routes/shop.js';
 import authRoutes from './routes/authRoutes.js';
+import session from 'express-session';
+
+const app = express();
+
+
+app.use(session({
+  secret: '8HUILH8;p92@@fL:qkjHHUIHiohihi2hul2kr',  
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 60 * 60 * 1000, 
+    httpOnly: true,        
+  },
+}));
 
 // __dirname trong ES Module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
 
 // Cài đặt view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
+app.use(express.static(path.join(__dirname, 'public')));
 // Middleware
 app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 app.use(cors());

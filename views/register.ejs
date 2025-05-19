@@ -1,7 +1,213 @@
-<h2>Đăng ký</h2>
-<form action="/register" method="POST">
-  <input type="text" name="username" placeholder="Tên đăng nhập" required />
-  <input type="email" name="email" placeholder="Email" required />
-  <input type="password" name="password" placeholder="Mật khẩu" required />
-  <button type="submit">Đăng ký</button>
-</form>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng ký - Ans Studio</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts for Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; /* Ensure body takes full viewport height */
+      background-color: #f8f9fa;
+    }
+    .main-content {
+      flex: 1; /* Allow main content to grow and push footer down */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .register-container {
+      max-width: 400px;
+      width: 100%;
+    }
+    .register-card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    .btn-register {
+      transition: all 0.3s ease;
+    }
+    .btn-register:hover {
+      transform: translateY(-2px);
+    }
+    .logo {
+      max-width: 150px;
+      margin-bottom: 1.5rem;
+    }
+    footer {
+      width: 100%;
+      background-color: #212529; /* Match bg-dark */
+    }
+    .footer-link {
+      color: #ffffff;
+      text-decoration: none;
+      margin: 0 10px;
+      transition: color 0.3s ease;
+    }
+    .footer-link:hover {
+      color: #0d6efd;
+    }
+    .social-icon {
+      font-size: 1.5rem;
+      margin: 0 10px;
+      color: #ffffff;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    .social-icon:hover {
+      transform: scale(1.2);
+      color: #0d6efd;
+    }
+  </style>
+</head>
+<body>
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="register-container px-4">
+      <div class="register-card card p-4">
+        <div class="card-body text-center">
+          <!-- Logo Ans Studio -->
+          <img src="/img/logo.png" alt="Ans Studio Logo" class="logo mx-auto" />
+          <form action="/register" method="POST" id="registerForm">
+            <div class="mb-3">
+              <label for="username" class="form-label text-left d-block text-gray-600">Tên tài khoản</label>
+              <input
+                type="text"
+                name="username"
+                id="username"
+                placeholder="Nhập tên tài khoản"
+                class="form-control rounded-lg"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label text-left d-block text-gray-600">Email</label>
+              <input
+                type="email"
+                name="email"
+                id="email"
+                placeholder="Nhập email"
+                class="form-control rounded-lg"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label for="password" class="form-label text-left d-block text-gray-600">Mật khẩu</label>
+              <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="Nhập mật khẩu"
+                class="form-control rounded-lg"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              class="btn-register btn btn-primary w-100 rounded-lg py-2"
+            >
+              Đăng ký
+            </button>
+          </form>
+          <p class="mt-3 text-gray-600">
+            Đã có tài khoản? <a href="/login" class="text-blue-600 hover:underline">Đăng nhập</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-white py-5">
+    <div class="container">
+      <div class="row">
+        <!-- About Ans Studio -->
+        <div class="col-md-4 mb-4">
+          <h5 class="font-semibold text-lg mb-3">Về Ans Studio</h5>
+          <p class="text-gray-300">
+            Ans Studio là nền tảng sáng tạo cung cấp các sản phẩm và dịch vụ số chất lượng cao. Chúng tôi chuyên cung cấp các giải pháp đổi mới để nâng tầm dự án của bạn với thiết kế và công cụ tiên tiến.
+          </p>
+        </div>
+        <!-- Quick Links -->
+        <div class="col-md-4 mb-4">
+          <h5 class="font-semibold text-lg mb-3">Liên kết nhanh</h5>
+          <ul class="list-unstyled">
+            <li><a href="/" class="footer-link">Trang chủ</a></li>
+            <li><a href="/products" class="footer-link">Sản phẩm</a></li>
+            <li><a href="/my-downloads" class="footer-link">Tải xuống của tôi</a></li>
+            <li><a href="/contact" class="footer-link">Liên hệ</a></li>
+          </ul>
+        </div>
+        <!-- Connect With Us -->
+        <div class="col-md-4 mb-4">
+          <h5 class="font-semibold text-lg mb-3">Kết nối với chúng tôi</h5>
+          <div class="d-flex flex-wrap">
+            <a href="https://discord.gg/k99aC2mYJj" target="_blank" class="social-icon" title="Discord">
+              <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://www.facebook.com/anphanhunter" target="_blank" class="social-icon" title="Facebook">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://twitter.com/ansstudio" target="_blank" class="social-icon" title="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://www.instagram.com/anphanpan" target="_blank" class="social-icon" title="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://www.youtube.com/@ansstudio" target="_blank" class="social-icon" title="YouTube">
+              <i class="fab fa-youtube"></i>
+            </a>
+            <a href="https://www.tiktok.com/@ansstudio" target="_blank" class="social-icon" title="TikTok">
+              <i class="fab fa-tiktok"></i>
+            </a>
+          </div>
+          <p class="text-gray-300 mt-3">
+            <strong>Email:</strong> <a href="mailto:support@ansstudio.com" class="footer-link">support@ansstudio.com</a><br>
+            <strong>Điện thoại:</strong> +84 123 456 789
+          </p>
+        </div>
+      </div>
+      <hr class="bg-gray-600">
+      <p class="text-center mb-0">© 2025 Ans Studio. Mọi quyền được bảo lưu.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS and Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+  <script>
+    // Client-side validation
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // Check username
+      if (username.length < 3) {
+        e.preventDefault();
+        alert('Tên tài khoản phải dài ít nhất 3 ký tự.');
+        return;
+      }
+
+      // Check email
+      if (!email || !/\S+@\S+\.\S+/.test(email)) {
+        e.preventDefault();
+        alert('Vui lòng nhập email hợp lệ.');
+        return;
+      }
+    });
+  </script>
+</body>
+</html>

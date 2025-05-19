@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import Account from '../models/Account.js';
 
+
 export const showRegisterForm = (req, res) => {
   res.render('register');
 };
@@ -36,10 +37,21 @@ export const login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.render('error', { message: 'Sai mật khẩu' });
 
-    // Gắn session hoặc JWT ở đây nếu muốn
+    
+    req.session.userEmail = user.email;
     res.redirect('/');
   } catch (err) {
     console.error(err);
     res.render('error', { message: 'Lỗi đăng nhập!' });
   }
+};
+
+export const logout = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error(err);
+      return res.render('error', { message: 'Lỗi đăng xuất!' });
+    }
+    res.redirect('/login');
+  });
 };

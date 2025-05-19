@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Downloads - Ans Studio</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts for Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; /* Ensure body takes full viewport height */
+      background-color: #f8f9fa;
+    }
+    .main-content {
+      flex: 1; /* Allow main content to grow and push footer down */
+      padding: 20px 0; /* Match container py-10 */
+    }
+    .download-btn {
+      transition: all 0.3s ease;
+    }
+    .download-btn:hover {
+      transform: scale(1.05);
+    }
+    .no-file {
+      color: #dc3545;
+      font-style: italic;
+    }
+    .logout-btn {
+      transition: all 0.3s ease;
+    }
+    .logout-btn:hover {
+      transform: translateY(-2px);
+    }
+    .user-card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    footer {
+      width: 100%;
+      background-color: #212529; /* Match bg-dark */
+    }
+    .footer-link {
+      color: #ffffff;
+      text-decoration: none;
+      margin: 0 10px;
+      transition: color 0.3s ease;
+    }
+    .footer-link:hover {
+      color: #0d6efd;
+    }
+    .social-icon {
+      font-size: 1.5rem;
+      margin: 0 10px;
+      color: #ffffff;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    .social-icon:hover {
+      transform: scale(1.2);
+      color: #0d6efd;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg bg-primary">
+    <div class="container">
+      <a class="navbar-brand text-white" href="/">Ans Studio</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/downloads">Danh sách sản phẩm</a>
+          </li>
+          <li class="nav-item">
+            <form action="/logout" method="POST">
+              <button type="submit" class="logout-btn btn btn-outline-light">
+                <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+              </button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="container">
+      <!-- User Information -->
+      <div class="user-card card mb-8">
+        <div class="card-body">
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">Thông tin tài khoản</h2>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <p><strong>Tên tài khoản:</strong> <%= user.username %></p>
+              <p><strong>Email:</strong> <%= user.email %></p>
+            </div>
+            <div class="col-md-6 mb-3">
+              <p><strong>Số dư:</strong> <%= user.balance.toFixed(2) %> VND</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders List -->
+      <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">
+        Danh sách các sản phẩm đã mua
+      </h1>
+
+      <% if (orders.length === 0) { %>
+        <div class="alert alert-warning text-center" role="alert">
+          Bạn chưa có đơn hàng nào.
+        </div>
+      <% } else { %>
+        <div class="row">
+          <% orders.forEach(order => { %>
+            <% const product = order.Product; %>
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column">
+                  <h3 class="card-title text-xl font-semibold text-gray-700 mb-3">
+                    <%= product.name %>
+                  </h3>
+                  <% if (product.downloadFile) { %>
+                    <a
+                      href="<%= product.downloadFile.googleDriveLink %>"
+                      class="download-btn btn btn-primary mt-auto"
+                      onclick="showDownloadAlert('<%= product.name %>')"
+                      download
+                    >
+                      Tải về
+                    </a>
+                  <% } else { %>
+                    <span class="no-file mt-auto">Chưa có file tải về</span>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <!-- Purchase Confirmation Toast -->
+      <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="purchaseToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+            Mua hàng thành công!
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-white py-5">
+    <div class="container">
+      <div class="row">
+        <!-- About Ans Studio -->
+        <div class="col-md-4 mb-4">
+          <h5 class="font-semibold text-lg mb-3">Về Ans Studio</h5>
+          <p class="text-gray-300">
+            Ans Studio là nền tảng sáng tạo cung cấp các sản phẩm và dịch vụ số chất lượng cao. Chúng tôi chuyên cung cấp các giải pháp đổi mới để nâng tầm dự án của bạn với thiết kế và công cụ tiên tiến.
+          </p>
+        </div>
+        <!-- Quick Links -->
+        <div class="col-md-4 mb-4">
+          <h5 class="font-semibold text-lg mb-3">Liên kết nhanh</h5>
+          <ul class="list-unstyled">
+            <li><a href="/" class="footer-link">Trang chủ</a></li>
+            <li><a href="/products" class="footer-link">Sản phẩm</a></li>
+            <li><a href="/my-downloads" class="footer-link">Tải xuống của tôi</a></li>
+            <li><a href="/contact" class="footer-link">Liên hệ</a></li>
+          </ul>
+        </div>
+        <!-- Connect With Us -->
+        <div class="col-md-4 mb-4">
+          <h5 class="font-semibold text-lg mb-3">Kết nối với chúng tôi</h5>
+          <div class="d-flex flex-wrap">
+            <a href="https://discord.gg/k99aC2mYJj" target="_blank" class="social-icon" title="Discord">
+              <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://www.facebook.com/anphanhunter" target="_blank" class="social-icon" title="Facebook">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://twitter.com/ansstudio" target="_blank" class="social-icon" title="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://www.instagram.com/anphanpan" target="_blank" class="social-icon" title="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://www.youtube.com/@ansstudio" target="_blank" class="social-icon" title="YouTube">
+              <i class="fab fa-youtube"></i>
+            </a>
+            <a href="https://www.tiktok.com/@ansstudio" target="_blank" class="social-icon" title="TikTok">
+              <i class="fab fa-tiktok"></i>
+            </a>
+          </div>
+          <p class="text-gray-300 mt-3">
+            <strong>Email:</strong> <a href="mailto:support@ansstudio.com" class="footer-link">support@ansstudio.com</a><br>
+            <strong>Điện thoại:</strong> +84 123 456 789
+          </p>
+        </div>
+      </div>
+      <hr class="bg-gray-600">
+      <p class="text-center mb-0">© 2025 Ans Studio.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS and Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+  <script>
+    // Hiển thị thông báo khi nhấn nút tải
+    function showDownloadAlert(productName) {
+      alert(`Bắt đầu tải file cho sản phẩm: ${productName}`);
+    }
+
+    // Show toast if redirected from purchase
+    if (window.location.search.includes('purchased=true')) {
+      const toast = new bootstrap.Toast(document.getElementById('purchaseToast'));
+      toast.show();
+    }
+  </script>
+</body>
+</html>

@@ -11,6 +11,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
     body {
@@ -49,20 +51,167 @@
     .product-link:hover {
       color: #0d6efd;
     }
+    .user-info {
+      font-size: 0.9rem;
+    }
+    .logout-btn, .downloads-link {
+      transition: all 0.3s ease;
+    }
+    .logout-btn:hover, .downloads-link:hover {
+      transform: translateY(-2px);
+    }
+    .auth-link {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      margin-left: 8px;
+    }
+    .login-link {
+      background-color: #0d6efd;
+      color: white !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .login-link:hover {
+      background-color: #0b5ed7;
+      transform: translateY(-2px);
+    }
+    .register-link {
+      background-color: #ffffff;
+      color: #0d6efd !important;
+      border: 1px solid #0d6efd;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .register-link:hover {
+      background-color: #f8f9fa;
+      transform: translateY(-2px);
+    }
+    .services-link {
+      display: block;
+      color: #212529;
+      text-decoration: none;
+    }
+    .services-link:hover {
+      color: #0d6efd;
+    }
+    .search-form {
+      max-width: 300px;
+    }
+    .search-input {
+      border-radius: 20px 0 0 20px;
+    }
+    .search-btn {
+      border-radius: 0 20px 20px 0;
+      transition: all 0.3s ease;
+    }
+    .search-btn:hover {
+      transform: scale(1.05);
+    }
+    .footer-link {
+      color: #ffffff;
+      text-decoration: none;
+      margin: 0 10px;
+      transition: color 0.3s ease;
+    }
+    .footer-link:hover {
+      color: #0d6efd;
+    }
+    .social-icon {
+      font-size: 1.5rem;
+      margin: 0 10px;
+      color: #ffffff;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    .social-icon:hover {
+      transform: scale(1.2);
+      color: #0d6efd;
+    }
   </style>
 </head>
 <body class="bg-gray-100">
 
-  <!-- Header with Logo -->
+  <!-- Header with Logo and Dynamic Navigation -->
   <header class="bg-white shadow-sm py-4">
-    <div class="container text-center">
+    <div class="container d-flex justify-content-between align-items-center">
       <a href="/" class="logo">Ans Studio</a>
+      <!-- <a href="/" class="logo"><img src="/img/logo.png" alt="Ans Studio Logo" class="logo mx-auto" width="100px"/></a> -->
+
+      <nav>
+        <ul class="nav align-items-center">
+          <% if (!user) { %>
+            <li class="nav-item">
+              <a class="nav-link auth-link login-link" href="/login">Đăng nhập</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link auth-link register-link" href="/register">Đăng ký</a>
+            </li>
+          <% } else { %>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle text-gray-600"
+                href="#"
+                id="userDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="fas fa-user me-1"></i> <%= user.username %>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li class="dropdown-item user-info">
+                  <strong>Tên tài khoản:</strong> <%= user.username %>
+                </li>
+                <li class="dropdown-item user-info">
+                  <strong>Email:</strong> <%= user.email %>
+                </li>
+                <li class="dropdown-item user-info">
+                  <strong>Số dư:</strong> <%= user.balance.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) %>
+                </li>
+                <li class="dropdown-item user-info">
+                  <a href="/my-downloads" class="services-link">
+                    <strong>Dịch vụ đã mua:</strong>
+                  </a>
+                </li>
+                <li class="dropdown-item">
+                  <a href="/my-downloads" class="downloads-link dropdown-item">
+                    <i class="fas fa-download me-1"></i> Tải xuống của tôi
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form action="/logout" method="POST">
+                    <button type="submit" class="logout-btn dropdown-item">
+                      <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+          <% } %>
+        </ul>
+      </nav>
     </div>
   </header>
 
   <!-- Main Content -->
   <main class="container my-5">
-    <h1 class="mb-5 text-center text-3xl font-semibold text-gray-800">Danh sách sản phẩm</h1>
+    <div class="d-flex justify-content-between align-items-center mb-5">
+      <h1 class="text-3xl font-semibold text-gray-800">Danh sách sản phẩm</h1>
+      <form class="search-form d-flex" action="/" method="GET">
+        <input
+          type="text"
+          name="search"
+          placeholder="Tìm kiếm sản phẩm..."
+          class="form-control search-input"
+          value="<%= typeof search !== 'undefined' ? search : '' %>"
+        />
+        <button type="submit" class="btn btn-primary search-btn">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
     
     <div class="row row-cols-1 row-cols-md-3 g-4">
       <% products.forEach(product => { %>
@@ -72,11 +221,11 @@
               <% if (product.images && product.images.length > 0) { %>
                 <img src="/Uploads/<%= product.images[0].filename %>" alt="<%= product.name %>" class="product-image" />
               <% } else { %>
-                <img src="/Uploads/placeholder.jpg" alt="No image" class="product-image" />
+                <img src="/Uploads/placeholder.jpg" alt="Không có hình ảnh" class="product-image" />
               <% } %>
               <div class="card-body">
                 <h5 class="card-title font-semibold text-lg"><%= product.name %></h5>
-                <p class="card-text text-gray-600"><%= product.price.toLocaleString('vi-VN') %> VNĐ</p>
+                <p class="card-text text-gray-600"><%= product.price.toLocaleString('vi-VN') %> VND</p>
               </div>
             </a>
           </div>
@@ -86,8 +235,58 @@
   </main>
 
   <!-- Footer -->
-  <footer class="bg-dark text-white text-center py-3">
-    <p class="mb-0">&copy; 2025 Ans Studio. All rights reserved.</p>
+  <footer class="bg-dark text-white py-5">
+    <div class="container">
+      <div class="row">
+        <!-- About Ans Studio -->
+        <div class="col-md-4 mb-4">
+          <h5 class="font-semibold text-lg mb-3">Về Ans Studio</h5>
+          <p class="text-gray-300">
+            Ans Studio là nền tảng sáng tạo cung cấp các sản phẩm và dịch vụ số chất lượng cao. Chúng tôi chuyên cung cấp các giải pháp đổi mới để nâng tầm dự án của bạn với thiết kế và công cụ tiên tiến.
+          </p>
+        </div>
+        <!-- Quick Links -->
+        <div class="col-md-4 mb-4">
+          <h5 class="font-semibold text-lg mb-3">Liên kết nhanh</h5>
+          <ul class="list-unstyled">
+            <li><a href="/" class="footer-link">Trang chủ</a></li>
+            <li><a href="/products" class="footer-link">Sản phẩm</a></li>
+            <li><a href="/my-downloads" class="footer-link">Tải xuống của tôi</a></li>
+            <li><a href="/contact" class="footer-link">Liên hệ</a></li>
+          </ul>
+        </div>
+        <!-- Connect With Us -->
+        <div class="col-md-4 mb-4">
+          <h5 class="font-semibold text-lg mb-3">Kết nối với chúng tôi</h5>
+          <div class="d-flex flex-wrap">
+            <a href="https://discord.gg/k99aC2mYJj" target="_blank" class="social-icon" title="Discord">
+              <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://www.facebook.com/anphanhunter" target="_blank" class="social-icon" title="Facebook">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://twitter.com/ansstudio" target="_blank" class="social-icon" title="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://www.instagram.com/anphanpan" target="_blank" class="social-icon" title="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://www.youtube.com/@ansstudio" target="_blank" class="social-icon" title="YouTube">
+              <i class="fab fa-youtube"></i>
+            </a>
+            <a href="https://www.tiktok.com/@ansstudio" target="_blank" class="social-icon" title="TikTok">
+              <i class="fab fa-tiktok"></i>
+            </a>
+          </div>
+          <p class="text-gray-300 mt-3">
+            <strong>Email:</strong> <a href="mailto:support@ansstudio.com" class="footer-link">support@ansstudio.com</a><br>
+            <strong>Điện thoại:</strong> +84 123 456 789
+          </p>
+        </div>
+      </div>
+      <hr class="bg-gray-600">
+      <p class="text-center mb-0">© 2025 Ans Studio</p>
+    </div>
   </footer>
 
   <!-- Bootstrap JS Bundle -->
