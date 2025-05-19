@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
       products = await Product.findAll({
         where: {
           name: {
-            [Op.iLike]: `%${search}%`, // Tìm kiếm không phân biệt hoa thường
+            [Op.iLike]: `%${search}%`, 
           },
         },
         include: [
