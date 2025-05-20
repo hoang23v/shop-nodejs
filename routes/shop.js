@@ -9,6 +9,7 @@ import { sendProductEmail } from '../services/sendMail.js';
 import { requireLogin } from '../middlewares/auth.js'; 
 import Account from '../models/Account.js'; 
 import sequelize from '../config/database.js';
+import Image from '../models/Image.js'; 
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -29,7 +30,7 @@ router.get('/', async (req, res) => {
         },
         include: [
           { model: DownloadFile, as: 'downloadFile' },
-          { model: Image, as: 'images' },
+          { model: Image, as: 'images' },  // <-- nhớ import hoặc định nghĩa model Image nếu chưa có
         ],
       });
     } else {
@@ -41,7 +42,6 @@ router.get('/', async (req, res) => {
       });
     }
 
-    // res.locals.user đã được set bởi middleware setUser
     res.render('index', {
       products,
       search: search || '',
@@ -52,9 +52,10 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Route mua sản phẩm
 router.post('/buy/:productId', requireLogin, async (req, res) => {
   try {
-    const user = res.locals.user; // Lấy từ res.locals.user
+    const user = res.locals.user;
     const product = await Product.findByPk(req.params.productId, {
       include: [{ model: DownloadFile, as: 'downloadFile' }],
     });
@@ -67,28 +68,33 @@ router.post('/buy/:productId', requireLogin, async (req, res) => {
       return res.status(400).render('error', { message: 'Sản phẩm đã hết hàng.' });
     }
 
-    // Tìm tài khoản người dùng từ bảng accounts
     const account = await Account.findByPk(user.id);
     if (!account) {
       return res.status(404).render('error', { message: 'Tài khoản không tồn tại.' });
     }
 
-    // Kiểm tra số dư (bỏ qua nếu là admin)
     if (!account.isAdmin && account.balance < product.price) {
-      return res.status(400).render('error', { message: 'Số dư không đủ để mua sản phẩm.' });
-    }
+  // Tải lại product cùng images để render đủ dữ liệu
+  const fullProduct = await Product.findByPk(product.id, {
+    include: [
+      { model: DownloadFile, as: 'downloadFile' },
+      { model: Image, as: 'images' }
+    ],
+  });
 
-    // Bắt đầu transaction
+  return res.status(400).render('product-detail', { 
+    product: fullProduct, 
+    alert: 'Số dư không đủ để mua sản phẩm.' 
+  });
+}
+
+
     const t = await sequelize.transaction();
 
     try {
-      // Tạo đơn hàng
       await Order.create({ userId: user.id, productId: product.id }, { transaction: t });
-
-      // Giảm số lượng hàng
       await product.decrement('stock', { transaction: t });
 
-      // Trừ tiền từ balance và cập nhật purchasedServices (bỏ qua trừ balance nếu là admin)
       const updatedPurchasedServices = account.purchasedServices
         ? [...account.purchasedServices, product.id]
         : [product.id];
@@ -108,15 +114,12 @@ router.post('/buy/:productId', requireLogin, async (req, res) => {
         );
       }
 
-      // Commit transaction
       await t.commit();
 
-      // Gửi email xác nhận
       await sendProductEmail(user.email, product, product.downloadFile);
 
       res.redirect('/my-downloads?purchased=true');
     } catch (error) {
-      // Rollback transaction nếu có lỗi
       await t.rollback();
       throw error;
     }
@@ -125,6 +128,7 @@ router.post('/buy/:productId', requireLogin, async (req, res) => {
     res.status(500).render('error', { message: 'Lỗi server khi mua sản phẩm.' });
   }
 });
+
 // Route tải file theo productId
 router.get('/download/:productId', requireLogin, async (req, res) => {
   try {

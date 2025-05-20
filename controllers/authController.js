@@ -74,23 +74,21 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
-
+  console.log('Email nhập:', email);
   try {
     const user = await Account.findOne({ where: { email } });
     if (!user) {
+      console.log('Không tìm thấy user');
       return res.render('login', { error: 'Sai tài khoản', email });
     }
-
+    console.log('User tìm thấy:', user.username);
     const match = await bcrypt.compare(password, user.password);
+    console.log('Kết quả so sánh mật khẩu:', match);
     if (!match) {
       return res.render('login', { error: 'Sai mật khẩu', email });
     }
-
-    // Lưu userId vào session
     req.session.userId = user.id;
-    console.log('Session sau đăng nhập:', req.session); // Debug
-
-    // Chuyển hướng tùy theo quyền admin
+    console.log('Session sau đăng nhập:', req.session);
     if (user.isAdmin) {
       res.redirect('/admin/add-product');
     } else {
@@ -101,6 +99,7 @@ export const login = async (req, res) => {
     res.render('login', { error: 'Lỗi đăng nhập!', email });
   }
 };
+
 
 export const logout = (req, res) => {
   req.session.destroy((err) => {
