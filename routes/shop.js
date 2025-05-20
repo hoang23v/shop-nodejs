@@ -1,36 +1,36 @@
 import express from 'express';
+import { Op } from 'sequelize'; 
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Op } from 'sequelize'; 
+
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import DownloadFile from '../models/DownloadFile.js';
-import { sendProductEmail } from '../services/sendMail.js';
-import { requireLogin } from '../middlewares/auth.js'; 
+import Image from '../models/Image.js'; 
 import Account from '../models/Account.js'; 
 import sequelize from '../config/database.js';
-import Image from '../models/Image.js'; 
+
+import { sendProductEmail } from '../services/sendMail.js';
+import { requireLogin } from '../middlewares/auth.js';
 
 const router = express.Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-// Route danh sách sản phẩm (home page)
+// Route danh sách sản phẩm (GET)
 router.get('/', async (req, res) => {
   try {
-    const { search } = req.query;
+    const search = req.query.search || '';
     let products;
 
     if (search) {
       products = await Product.findAll({
         where: {
           name: {
-            [Op.iLike]: `%${search}%`, 
+            [Op.iLike]: `%${search}%`,
           },
         },
         include: [
           { model: DownloadFile, as: 'downloadFile' },
-          { model: Image, as: 'images' },  // <-- nhớ import hoặc định nghĩa model Image nếu chưa có
+          { model: Image, as: 'images' },
         ],
       });
     } else {
@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
 
     res.render('index', {
       products,
-      search: search || '',
+      search,
     });
   } catch (error) {
     console.error('Lỗi trong /:', error.message, error.stack);
@@ -52,7 +52,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Route mua sản phẩm
+// Route mua sản phẩm (POST)
 router.post('/buy/:productId', requireLogin, async (req, res) => {
   try {
     const user = res.locals.user;
@@ -74,20 +74,18 @@ router.post('/buy/:productId', requireLogin, async (req, res) => {
     }
 
     if (!account.isAdmin && account.balance < product.price) {
-  // Tải lại product cùng images để render đủ dữ liệu
-  const fullProduct = await Product.findByPk(product.id, {
-    include: [
-      { model: DownloadFile, as: 'downloadFile' },
-      { model: Image, as: 'images' }
-    ],
-  });
+      const fullProduct = await Product.findByPk(product.id, {
+        include: [
+          { model: DownloadFile, as: 'downloadFile' },
+          { model: Image, as: 'images' }
+        ],
+      });
 
-  return res.status(400).render('product-detail', { 
-    product: fullProduct, 
-    alert: 'Số dư không đủ để mua sản phẩm.' 
-  });
-}
-
+      return res.status(400).render('product-detail', { 
+        product: fullProduct, 
+        alert: 'Số dư không đủ để mua sản phẩm.' 
+      });
+    }
 
     const t = await sequelize.transaction();
 
@@ -129,7 +127,7 @@ router.post('/buy/:productId', requireLogin, async (req, res) => {
   }
 });
 
-// Route tải file theo productId
+// Route tải file theo productId (GET)
 router.get('/download/:productId', requireLogin, async (req, res) => {
   try {
     const user = res.locals.user;
@@ -162,7 +160,7 @@ router.get('/download/:productId', requireLogin, async (req, res) => {
   }
 });
 
-// Route danh sách file đã mua
+// Route danh sách file đã mua (GET)
 router.get('/my-downloads', requireLogin, async (req, res) => {
   try {
     const user = res.locals.user;

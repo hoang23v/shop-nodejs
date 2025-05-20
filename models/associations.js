@@ -1,17 +1,11 @@
-import sequelize from '../config/database.js';
-import { DataTypes, Model } from 'sequelize';
+// associations.js (ví dụ bạn đặt tên file này)
 
-// Import models
 import Account from './Account.js';
 import Product from './Product.js';
 import Order from './Order.js';
 import DownloadFile from './DownloadFile.js';
 import Image from './Image.js';
 
-// Initialize models
-// (This is only necessary if you're defining models here instead of in separate files)
-
-// Define associations
 function initializeAssociations() {
   // Product associations
   Product.hasOne(DownloadFile, { 
@@ -41,7 +35,7 @@ function initializeAssociations() {
   // Order associations
   Order.belongsTo(Product, { 
     foreignKey: 'productId', 
-    as: 'orderedProduct' 
+    as: 'orderedProduct'  // bạn có thể đổi tên alias này nếu muốn, nhớ đồng bộ trong include
   });
   
   Order.belongsTo(Account, { 

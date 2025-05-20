@@ -33,18 +33,28 @@ const createProduct = async (req, res) => {
 };
 
 
+
 const getAllProducts = async (req, res) => {
   try {
+    const searchQuery = req.query.search;
+
+    const whereCondition = searchQuery
+      ? where(fn('LOWER', col('name')), {
+          [Op.like]: `%${searchQuery.toLowerCase()}%`
+        })
+      : undefined;
+
     const products = await Product.findAll({
-      include: [{ model: Image, as: 'images' }] 
+      where: whereCondition,
+      include: [{ model: Image, as: 'images' }]
     });
+
     res.render('productList', { products });
   } catch (err) {
-    console.error(err);
+    console.error('Lỗi khi lấy danh sách sản phẩm:', err);
     res.status(500).send('Lỗi server');
   }
 };
-
 
 const deleteProduct = async (req, res) => {
   try {

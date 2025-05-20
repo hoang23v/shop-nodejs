@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { Op } from 'sequelize';
+import { Op, fn, col, where } from 'sequelize'; // 👈 Thêm fn, col, where
 import Product from '../models/Product.js';
 import Image from '../models/Image.js';
 
@@ -13,11 +13,9 @@ router.get('/', async (req, res) => {
 
     if (search) {
       products = await Product.findAll({
-        where: {
-          name: {
-            [Op.iLike]: `%${search}%`, // Tìm kiếm không phân biệt hoa thường
-          },
-        },
+        where: where(fn('LOWER', col('name')), {
+          [Op.like]: `%${search.toLowerCase()}%`,
+        }),
         include: [{ model: Image, as: 'images' }],
       });
     } else {
@@ -26,7 +24,6 @@ router.get('/', async (req, res) => {
       });
     }
 
-    // res.locals.user đã được set bởi middleware setUser
     res.render('products', {
       products,
       search: search || '',
@@ -48,7 +45,6 @@ router.get('/product/:id', async (req, res) => {
       return res.status(404).render('error', { message: 'Không tìm thấy sản phẩm.' });
     }
 
-    // res.locals.user đã được set bởi middleware setUser
     res.render('product-detail', { product });
   } catch (error) {
     console.error('Lỗi khi lấy sản phẩm:', error.message, error.stack);
