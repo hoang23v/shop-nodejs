@@ -34,22 +34,12 @@ CREATE TABLE `Accounts` (
   `purchasedServices` text DEFAULT NULL,
   `createdAt` datetime NOT NULL DEFAULT current_timestamp(),
   `updatedAt` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `isAdmin` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Accounts`
---
-
-LOCK TABLES `Accounts` WRITE;
-/*!40000 ALTER TABLE `Accounts` DISABLE KEYS */;
-INSERT INTO `Accounts` VALUES
-(5,'ans','anan123456a123@gmail.com','$2b$10$xpEVC6dy540Kd/nJyVjJeeMi7KBrCXJ5enbvLv2trUPBVK9pl665a',1.00,NULL,'2025-05-19 16:27:13','[]','2025-05-19 16:27:13','2025-05-19 23:53:24');
-/*!40000 ALTER TABLE `Accounts` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `DownloadFiles`
@@ -67,21 +57,8 @@ CREATE TABLE `DownloadFiles` (
   PRIMARY KEY (`id`),
   KEY `productId` (`productId`),
   CONSTRAINT `downloadfiles_ibfk_1` FOREIGN KEY (`productId`) REFERENCES `Products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `DownloadFiles`
---
-
-LOCK TABLES `DownloadFiles` WRITE;
-/*!40000 ALTER TABLE `DownloadFiles` DISABLE KEYS */;
-INSERT INTO `DownloadFiles` VALUES
-(5,22,'2025-05-18 17:03:21','2025-05-18 17:03:21','https://drive.google.com/file/d/1qLZmVjOqMuVOdued9ZF_hxMj2C1Aa8fW/view?usp=sharing'),
-(6,23,'2025-05-18 17:04:34','2025-05-18 17:04:34','https://drive.google.com/file/d/1qLZmVjOqMuVOdued9ZF_hxMj2C1Aa8fW/view?usp=sharing'),
-(8,26,'2025-05-18 17:27:31','2025-05-18 17:27:31','https://drive.google.com/file/d/1qLZmVjOqMuVOdued9ZF_hxMj2C1Aa8fW/view?usp=sharing');
-/*!40000 ALTER TABLE `DownloadFiles` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Images`
@@ -99,23 +76,8 @@ CREATE TABLE `Images` (
   PRIMARY KEY (`id`),
   KEY `productId` (`productId`),
   CONSTRAINT `images_ibfk_1` FOREIGN KEY (`productId`) REFERENCES `Products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Images`
---
-
-LOCK TABLES `Images` WRITE;
-/*!40000 ALTER TABLE `Images` DISABLE KEYS */;
-INSERT INTO `Images` VALUES
-(16,'images-1747587801622-248088582.png',22,'2025-05-18 17:03:21','2025-05-18 17:03:21'),
-(17,'images-1747587874080-183177294.JPG',23,'2025-05-18 17:04:34','2025-05-18 17:04:34'),
-(22,'images-1747589251119-680358626.jpeg',26,'2025-05-18 17:27:31','2025-05-18 17:27:31'),
-(23,'images-1747589251120-44476678.jpeg',26,'2025-05-18 17:27:31','2025-05-18 17:27:31'),
-(24,'images-1747589251120-774977611.jpeg',26,'2025-05-18 17:27:31','2025-05-18 17:27:31');
-/*!40000 ALTER TABLE `Images` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Orders`
@@ -133,30 +95,8 @@ CREATE TABLE `Orders` (
   PRIMARY KEY (`id`),
   KEY `productId` (`productId`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`productId`) REFERENCES `Products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Orders`
---
-
-LOCK TABLES `Orders` WRITE;
-/*!40000 ALTER TABLE `Orders` DISABLE KEYS */;
-INSERT INTO `Orders` VALUES
-(43,1,22,'2025-05-18 17:25:37','2025-05-18 17:25:37'),
-(45,1,26,'2025-05-18 17:27:43','2025-05-18 17:27:43'),
-(46,1,26,'2025-05-19 16:06:34','2025-05-19 16:06:34'),
-(47,1,26,'2025-05-19 16:08:38','2025-05-19 16:08:38'),
-(48,1,26,'2025-05-19 16:10:40','2025-05-19 16:10:40'),
-(49,1,26,'2025-05-19 16:11:30','2025-05-19 16:11:30'),
-(50,1,26,'2025-05-19 16:12:12','2025-05-19 16:12:12'),
-(51,1,26,'2025-05-19 16:13:19','2025-05-19 16:13:19'),
-(52,1,26,'2025-05-19 16:27:24','2025-05-19 16:27:24'),
-(53,1,26,'2025-05-19 16:31:07','2025-05-19 16:31:07'),
-(54,5,26,'2025-05-19 16:33:03','2025-05-19 16:33:03'),
-(55,5,22,'2025-05-19 16:37:06','2025-05-19 16:37:06');
-/*!40000 ALTER TABLE `Orders` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Products`
@@ -175,21 +115,8 @@ CREATE TABLE `Products` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Products`
---
-
-LOCK TABLES `Products` WRITE;
-/*!40000 ALTER TABLE `Products` DISABLE KEYS */;
-INSERT INTO `Products` VALUES
-(22,'Anti Hack','anti hack',100000,117,NULL,'2025-05-18 17:03:21','2025-05-19 16:37:06'),
-(23,'backup file','',122212000,12,NULL,'2025-05-18 17:04:34','2025-05-18 17:04:34'),
-(26,'Plugin Fly','dAY LA PLUGIN VIET HOA',119998,1099,NULL,'2025-05-18 17:27:31','2025-05-19 16:33:03');
-/*!40000 ALTER TABLE `Products` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -200,4 +127,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2025-05-20  0:18:11
+-- Dump completed on 2025-05-20  7:20:49
